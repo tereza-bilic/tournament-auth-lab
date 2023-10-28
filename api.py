@@ -1,5 +1,7 @@
 from flask import Flask
 from flask import request
+from flask_cors import CORS, cross_origin
+import logging
 import sqlite3
 
 def round_robin_tournament(participants):
@@ -31,73 +33,61 @@ def round_robin_tournament(participants):
 # ------------------ Flask app logic ------------------
 
 app = Flask(__name__)
-conn = sqlite3.connect('test.db')
-print('Opened database successfully')
 
-conn.execute('''CREATE TABLE GAME
-        (ID INT PRIMARY KEY     NOT NULL,
-        NAME           TEXT    NOT NULL,
-        PARTICIPANTS   TEXT     NOT NULL,
-        WINSCORE        INT     NOT NULL,
-        TIESCORE        INT     NOT NULL,
-        LOSESCORE       INT     NOT NULL
-        );''')
+# Initialize CORS with your app and specify custom options
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}, "/*": {"origins": "*"}},
+          allow_headers=["Content-Type", "Authorization"],
+          supports_credentials=True)
 
 
-conn.execute('''CREATE TABLE MATCH
-            (ID INT PRIMARY KEY     NOT NULL,
-            player1           TEXT    NOT NULL,
-            player2           TEXT    NOT NULL,
-            score            INT     NOT NULL,
-            FOREIGN KEY (player1) REFERENCES GAME (PARTICIPANTS)
-            );''')
-
-print("Table created successfully")
-
-
-@app.post("/game")
+@app.post("/games")
+@cross_origin(supports_credentials=True)
 def createGame():
-    print(request.json)
-
     name = request.json['name']
-    participants = request.json['participants'].split(',')
-    win_score = request.json['win_score']
-    tie_score = request.json['tie_score']
-    lose_score = request.json['lose_score']
+    participants = request.json['participants']
+    win_score = request.json['winScore']
+    tie_score = request.json['tieScore']
+    lose_score = request.json['loseScore']
+    schedule = round_robin_tournament(participants.split(','))
 
 
-    schedule = round_robin_tournament(participants)
-    print(schedule)
+    conn = sqlite3.connect('test.db')
+    cursor = conn.cursor()
 
-    match_ids = []
-
-    conn.execute("INSERT INTO GAME (NAME,PARTICIPANTS,WINSCORE,TIESCORE,LOSESCORE) \
+    cursor.execute("INSERT INTO GAME (NAME,PARTICIPANTS,WINSCORE,TIESCORE,LOSESCORE) \
         VALUES (?,?,?,?,?)" "RETURNING id", (name, participants, win_score, tie_score, lose_score));
 
+    row = cursor.fetchone()
+    (game_id, ) = row if row else None
+    print(row)
 
     for match in schedule:
-      conn.execute("INSERT INTO MATCH (player1,player2,score) \
-        VALUES (?,?,?)" (match[0], match[1], 0));
+      cursor.execute("INSERT INTO MATCH (player1,player2,score,game) \
+        VALUES (?,?,?,?)", (match[0], match[1], 0, game_id));
 
-    # get the id of the game and return it
-    cursor = conn.execute("SELECT MAX(id) FROM GAME")
-    game = cursor.fetchone()[0]
 
     conn.commit()
     print("Records created successfully")
 
-
-    return game
-
+    return ({"id": game_id}, 200)
 
 
-@app.patch("/match/<id>")
+
+@app.patch("/matches/<id>")
 def updateMatchScore():
     print(request.json)
+    conn = sqlite3.connect('test.db')
+    cursor = conn.cursor()
 
     id = request.json['id']
     score = request.json['score']
 
-    conn.execute("UPDATE MATCH set score = ? where ID = ?", (score, id));
+    cursor.execute("UPDATE MATCH set score = ? where ID = ?", (score, id));
+    conn.commit()
 
     return "<p>Match updated!</p>"
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    logging.getLogger('flask_cors').level = logging.DEBUG
