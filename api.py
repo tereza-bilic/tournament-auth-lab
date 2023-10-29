@@ -50,36 +50,92 @@ def createGame():
     lose_score = request.json['loseScore']
     schedule = round_robin_tournament(participants.split(','))
 
+    splittedParticipants = participants.split(',')
+
+    if len(splittedParticipants) < 4 or len(splittedParticipants) > 8:
+        return ("Number of participants must be between 4 and 8", 422)
+
+    if len(splittedParticipants) % 2 != 0:
+        return ("Number of participants must be even", 422)
+
 
     conn = sqlite3.connect('test.db')
     cursor = conn.cursor()
 
     cursor.execute("INSERT INTO GAME (NAME,PARTICIPANTS,WINSCORE,TIESCORE,LOSESCORE) \
-        VALUES (?,?,?,?,?)" "RETURNING id", (name, participants, win_score, tie_score, lose_score));
+        VALUES (?,?,?,?,?)" "RETURNING id, name, participants, winscore, tiescore, losescore", (name, participants, win_score, tie_score, lose_score));
 
     row = cursor.fetchone()
-    (game_id, ) = row if row else None
+    print(row)
+    (game_id, name, participants, win_score, tie_score, lose_score) = row if row else None
     print(row)
 
+    matches = []
+
     for match in schedule:
-      cursor.execute("INSERT INTO MATCH (player1,player2,score,game) \
-        VALUES (?,?,?,?)", (match[0], match[1], 0, game_id));
+      cursor.execute("INSERT INTO MATCH (player1,player2, score, game) \
+        VALUES (?,?,?,?)" "RETURNING id, player1, player2, score", (match[0], match[1], 0, game_id));
+      row = cursor.fetchone()
+      (match_id, player1, player2, score) = row if row else None
+      matches.append({
+        "id": match_id,
+        "player1": player1,
+        "player2": player2,
+        "score": score
+      })
+
 
 
     conn.commit()
     print("Records created successfully")
 
-    return ({"id": game_id}, 200)
+    return ({
+      "id": game_id,
+      "name": name,
+      "winScore": win_score,
+      "tieScore": tie_score,
+      "loseScore": lose_score,
+      "matches": matches
+      }, 200)
 
 
-
-@app.patch("/matches/<id>")
-def updateMatchScore():
-    print(request.json)
+@app.get("/games/<id>")
+def getGame(id):
     conn = sqlite3.connect('test.db')
     cursor = conn.cursor()
 
-    id = request.json['id']
+    cursor.execute("SELECT * FROM GAME where ID = ?", (id,));
+    row = cursor.fetchone()
+    (game_id, name, participants, win_score, tie_score, lose_score) = row if row else None
+
+    cursor.execute("SELECT * FROM MATCH where GAME = ?", (id,));
+    rows = cursor.fetchall()
+    matches = []
+    for row in rows:
+      (match_id, player1, player2, score, game) = row if row else None
+      matches.append({
+        "id": match_id,
+        "player1": player1,
+        "player2": player2,
+        "score": score
+      })
+
+    return ({
+      "id": game_id,
+      "participants": participants,
+      "name": name,
+      "winScore": win_score,
+      "tieScore": tie_score,
+      "loseScore": lose_score,
+      "matches": matches
+      }, 200)
+
+
+@app.patch("/matches/<id>")
+def updateMatchScore(id):
+    print(request.json)
+    conn = sqlite3.connect('test.db')
+    cursor = conn.cursor()
     score = request.json['score']
 
     cursor.execute("UPDATE MATCH set score = ? where ID = ?", (score, id));
