@@ -46,7 +46,7 @@ def round_robin_tournament(participants):
 
 app = Flask(__name__)
 # Initialize CORS with your app and specify custom options
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}, "/*": {"origins": "*"}},
+CORS(app, resources={r"/api/*": {"origins": "*"}, "/*": {"origins": "*"}},
           allow_headers=["Content-Type", "Authorization"],
           supports_credentials=True)
 
