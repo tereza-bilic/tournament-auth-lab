@@ -1,4 +1,4 @@
 {
-  "api": "https://138.201.184.55:5000",
+  "api": "https://auth-lab-api.onrender.com:5000",
   "app_redirect": "https://tournament-auth-lab.onrender.com"
 }
