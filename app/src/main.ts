@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import authConfig from "../auth_config.json";
+import envConfig from "../env_config.json";
 import { createAuth0 } from "@auth0/auth0-vue";
 import { Quasar } from 'quasar'
 import axios from 'axios'
@@ -31,7 +32,7 @@ app.use(
     domain: authConfig.domain,
     clientId: authConfig.clientId,
     authorizationParams: {
-      redirect_uri: 'http://localhost:5173',
+      redirect_uri: envConfig.app_redirect,
     }
   })
 )
