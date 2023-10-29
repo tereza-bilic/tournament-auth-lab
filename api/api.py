@@ -1,8 +1,21 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 from flask_cors import CORS, cross_origin
 import logging
 import sqlite3
+import jwt
+
+from authlib.integrations.flask_client import OAuth
+from os import environ as env
+from dotenv import find_dotenv, load_dotenv
+
+from flask import g, request, redirect, url_for
+
+
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
+
 
 def round_robin_tournament(participants):
     if len(participants) < 4 or len(participants) > 8:
@@ -33,16 +46,41 @@ def round_robin_tournament(participants):
 # ------------------ Flask app logic ------------------
 
 app = Flask(__name__)
-
 # Initialize CORS with your app and specify custom options
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}, "/*": {"origins": "*"}},
           allow_headers=["Content-Type", "Authorization"],
           supports_credentials=True)
 
 
+app.secret_key = env.get("APP_SECRET_KEY")
+
+oauth = OAuth(app)
+
+oauth.register(
+    "auth0",
+    client_id=env.get("AUTH0_CLIENT_ID"),
+    client_secret=env.get("AUTH0_CLIENT_SECRET"),
+    client_kwargs={
+        "scope": "openid profile email",
+        "audience": "https://dev-nt27a611kij250c4.us.auth0.com/api/v2/"
+    },
+    server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
+)
+
+
+
 @app.post("/games")
+# @require_auth()
 @cross_origin(supports_credentials=True)
 def createGame():
+
+
+    print(request.headers.get('Authorization'))
+
+    token = oauth.auth0.authorize_access_token()
+    print(token)
+
+
     name = request.json['name']
     participants = request.json['participants']
     win_score = request.json['winScore']

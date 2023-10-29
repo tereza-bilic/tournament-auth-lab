@@ -1,5 +1,5 @@
 <template>
-  <button class="button__sign-up" @click="handleSignUp">Sign Up</button>
+    <q-btn color="primary" label="Sign up" @click="handleSignUp" />
 </template>
 
 <script lang="ts" setup>

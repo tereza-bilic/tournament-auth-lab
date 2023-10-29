@@ -4,7 +4,7 @@
       <q-form
         @submit="onSubmit"
         @reset="onReset"
-        class="q-gutter-md"
+        class="form-container bg-grey-3 shadow-2"
       >
         <q-input
           filled
@@ -70,7 +70,12 @@
     </div>
 </template>
 
-<style>
+<style scoped>
+  .form-container {
+    padding: 3rem;
+    border-radius: 16px;
+  }
+
   .form {
     width: 500px;
     margin: 0 auto;
@@ -111,8 +116,6 @@ export default {
     const tieScore = ref(null)
     const loseScore = ref(null)
 
-    console.log(auth0)
-
 
     return {
       name,
@@ -133,6 +136,7 @@ export default {
         };
 
         try {
+          const token = await auth0.getAccessTokenSilently();
           const response = await axios.post(`${env_config.api}/games`, {
             name: name.value,
             participants: participants.value,
@@ -140,6 +144,10 @@ export default {
             tieScore: tieScore.value,
             loseScore: loseScore.value,
             creator: auth0.user.value.sub
+          }, {
+            headers: {
+              'Authorization': 'Bearer ' + token,
+            }
           })
           console.log(response)
 

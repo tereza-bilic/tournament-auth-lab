@@ -1,14 +1,14 @@
 <template>
-  <q-card flat bordered class="my-card">
+  <q-card dark bordered class="bg-grey-3 my-card text-dark" >
     <q-card-section style="display: flex; justify-content: space-between;">
       <span> Round {{round}} </span>
       <span class="text-right">Result</span>
     </q-card-section>
 
-    <q-separator inset />
+    <q-separator inset/>
 
     <q-card-section  style="display: flex; width: 20rem; justify-content: space-between; align-items: center;">
-      {{match.player1}} vs {{match.player2}}
+      {{match.player1}} <span class="text-primary" style="padding: 4px">vs</span> {{match.player2}}
       <template v-if="props.isEditable">
         <q-select style="width: 10rem" square outlined v-model="score" :options="options"/>
       </template>

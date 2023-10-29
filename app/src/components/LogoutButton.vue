@@ -1,5 +1,5 @@
 <template>
-  <button class="button__logout" @click="handleLogout">Log Out</button>
+  <q-btn square color="primary" label="Log out" @click="handleLogout" icon="logout" />
 </template>
 
 <script setup lang="ts">

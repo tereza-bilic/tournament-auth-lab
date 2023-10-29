@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+  <div class="q-pa-md" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
     <template v-for="(match, index) in matches">
       <match :match="match" :round="index + 1" :isEditable="props.isEditable" :updateMatch="updateMatch"/>
     </template>
