@@ -13,7 +13,8 @@ conn.execute('''CREATE TABLE GAME
         PARTICIPANTS   TEXT     NOT NULL,
         WINSCORE        INT     NOT NULL,
         TIESCORE        INT     NOT NULL,
-        LOSESCORE       INT     NOT NULL
+        LOSESCORE       INT     NOT NULL,
+        CREATOR        TEXT    NOT NULL
         );''')
 
 

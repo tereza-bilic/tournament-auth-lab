@@ -110,6 +110,8 @@ export default {
     const tieScore = ref(null)
     const loseScore = ref(null)
 
+    console.log(auth0)
+
 
     return {
       name,
@@ -120,13 +122,23 @@ export default {
       user: auth0.user,
 
       async onSubmit () {
+        if (!auth0.user.value) {
+          $q.notify({
+            message: 'Please login to create a game',
+            color: 'negative',
+            position: 'top'
+          })
+          return
+        };
+
         try {
           const response = await axios.post('http://127.0.0.1:5000/games', {
             name: name.value,
             participants: participants.value,
             winScore: winScore.value,
             tieScore: tieScore.value,
-            loseScore: loseScore.value
+            loseScore: loseScore.value,
+            creator: auth0.user.value.sub
           })
           console.log(response)
 

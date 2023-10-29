@@ -2,7 +2,7 @@
   <suspense>
     <template #default>
       <div>
-          <div class="text-h4">Game: {{ name }} </div>
+          <div class="text-h4">{{ name }} </div>
           <div class="game">
             <MatchEditor :matches="matches" :isEditable="isEditable" :updateMatch="updateMatch"/>
             <LeaderBoard :matches="matches" :participants="participants" :win="winScore" :lose="loseScore" :tie="tieScore"/>
@@ -33,17 +33,17 @@
   const auth0 = useAuth0();
   const route = useRoute();
   const { id } = route.params;
-  const isEditable = auth0.isAuthenticated;
 
   const name = ref(null)
   const participants = ref(null)
   const winScore = ref(null)
   const tieScore = ref(null)
   const loseScore = ref(null)
-
   const gameData = await axios.get(`http://127.0.0.1:5000/games/${id}`)
 
-  console.log(gameData.data);
+  const isEditable = auth0.isAuthenticated && auth0.user.value?.sub === gameData.data.creator;
+
+
   name.value = gameData.data.name,
   participants.value = gameData.data.participants.split(','),
   winScore.value = gameData.data.winScore,

@@ -48,6 +48,7 @@ def createGame():
     win_score = request.json['winScore']
     tie_score = request.json['tieScore']
     lose_score = request.json['loseScore']
+    creator = request.json['creator']
     schedule = round_robin_tournament(participants.split(','))
 
     splittedParticipants = participants.split(',')
@@ -62,8 +63,8 @@ def createGame():
     conn = sqlite3.connect('test.db')
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO GAME (NAME,PARTICIPANTS,WINSCORE,TIESCORE,LOSESCORE) \
-        VALUES (?,?,?,?,?)" "RETURNING id, name, participants, winscore, tiescore, losescore", (name, participants, win_score, tie_score, lose_score));
+    cursor.execute("INSERT INTO GAME (NAME,PARTICIPANTS,WINSCORE,TIESCORE,LOSESCORE,CREATOR) \
+        VALUES (?,?,?,?,?,?)" "RETURNING id, name, participants, winscore, tiescore, losescore", (name, participants, win_score, tie_score, lose_score, creator));
 
     row = cursor.fetchone()
     print(row)
@@ -106,7 +107,7 @@ def getGame(id):
 
     cursor.execute("SELECT * FROM GAME where ID = ?", (id,));
     row = cursor.fetchone()
-    (game_id, name, participants, win_score, tie_score, lose_score) = row if row else None
+    (game_id, name, participants, win_score, tie_score, lose_score, creator) = row if row else None
 
     cursor.execute("SELECT * FROM MATCH where GAME = ?", (id,));
     rows = cursor.fetchall()
@@ -127,7 +128,8 @@ def getGame(id):
       "winScore": win_score,
       "tieScore": tie_score,
       "loseScore": lose_score,
-      "matches": matches
+      "matches": matches,
+      "creator": creator
       }, 200)
 
 
