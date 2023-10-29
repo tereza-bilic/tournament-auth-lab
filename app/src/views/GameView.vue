@@ -28,6 +28,7 @@
   import { useAuth0 } from '@auth0/auth0-vue';
   import { useRoute } from 'vue-router'
   import { reactive, ref } from 'vue'
+  import env_config from '../../env_config.json'
   import axios from 'axios'
 
   const auth0 = useAuth0();
@@ -39,7 +40,7 @@
   const winScore = ref(null)
   const tieScore = ref(null)
   const loseScore = ref(null)
-  const gameData = await axios.get(`http://127.0.0.1:5000/games/${id}`)
+  const gameData = await axios.get(`${env_config.api}/games/${id}`)
 
   const isEditable = auth0.isAuthenticated && auth0.user.value?.sub === gameData.data.creator;
 
@@ -52,7 +53,7 @@
   const matches = reactive(gameData.data.matches)
 
   const updateMatch = async(match: {id: number}, newScore: string) => {
-    await axios.patch(`http://127.0.0.1:5000/matches/${match.id}`, {
+    await axios.patch(`${env_config.api}/matches/${match.id}`, {
       score: newScore
     });
 

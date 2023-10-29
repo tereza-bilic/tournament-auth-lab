@@ -96,6 +96,7 @@ import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import axios from 'axios'
+import env_config from '../../env_config.json'
 
 
 export default {
@@ -132,7 +133,7 @@ export default {
         };
 
         try {
-          const response = await axios.post('http://127.0.0.1:5000/games', {
+          const response = await axios.post(`${env_config.api}/games`, {
             name: name.value,
             participants: participants.value,
             winScore: winScore.value,
