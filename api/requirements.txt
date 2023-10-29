@@ -3,3 +3,4 @@ python-dotenv>=0.19.2
 authlib>=1.0
 requests>=2.27.1
 flask_cors>=3.0.10
+sqlite3>=3.36.0
