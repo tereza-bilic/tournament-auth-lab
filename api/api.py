@@ -1,15 +1,14 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask import request
 from flask_cors import CORS, cross_origin
 import logging
 import sqlite3
-import jwt
 
 from authlib.integrations.flask_client import OAuth
 from os import environ as env
 from dotenv import find_dotenv, load_dotenv
 
-from flask import g, request, redirect, url_for
+from flask import request
 
 
 ENV_FILE = find_dotenv()
