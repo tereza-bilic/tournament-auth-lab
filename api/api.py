@@ -97,8 +97,8 @@ def createGame():
     cursor = conn.cursor()
 
     cursor.execute("INSERT INTO GAME (NAME,PARTICIPANTS,WINSCORE,TIESCORE,LOSESCORE,CREATOR) \
-        VALUES (?,?,?,?,?,?)" "RETURNING id, name, participants, winscore, tiescore, losescore", (name, participants, win_score, tie_score, lose_score, creator));
-
+        VALUES (?,?,?,?,?,?)" , (name, participants, win_score, tie_score, lose_score, creator))
+    cursor.execute("SELECT ID,NAME,PARTICIPANTS,WINSCORE,TIESCORE,LOSESCORE FROM GAME where NAME = ? AND PARTICIPANTS = ? AND WINSCORE = ? AND TIESCORE = ? AND LOSESCORE = ? AND CREATOR = ?" ,  (name, participants, win_score, tie_score, lose_score, creator))
     row = cursor.fetchone()
     print(row)
     (game_id, name, participants, win_score, tie_score, lose_score) = row if row else None
@@ -108,7 +108,8 @@ def createGame():
 
     for match in schedule:
       cursor.execute("INSERT INTO MATCH (player1,player2, score, game) \
-        VALUES (?,?,?,?)" "RETURNING id, player1, player2, score", (match[0], match[1], 0, game_id));
+        VALUES (?,?,?,?)", (match[0], match[1], 0, game_id))
+      cursor.execute("SELECT player1,player2, score, game FROM MATCH where player1 = ? and player2 = ? and score = ? and game = ?", (match[0], match[1], 0, game_id))
       row = cursor.fetchone()
       (match_id, player1, player2, score) = row if row else None
       matches.append({
