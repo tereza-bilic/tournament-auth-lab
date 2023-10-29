@@ -76,10 +76,6 @@ def createGame():
 
     print(request.headers.get('Authorization'))
 
-    token = oauth.auth0.authorize_access_token()
-    print(token)
-
-
     name = request.json['name']
     participants = request.json['participants']
     win_score = request.json['winScore']
